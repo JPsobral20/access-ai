@@ -1,0 +1,19 @@
+{
+    "name": "docker-node-python-typescript",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "express": "^4.21.1",
+        "pg": "^8.13.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.7.7",
+        "@types/pg": "^8.11.10",
+        "typescript": "^4.4.3"
+    }
+}
