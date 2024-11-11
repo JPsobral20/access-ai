@@ -17,11 +17,11 @@ In Sprint 0, we developed two prototypes that show the main features we plan to 
 
 The first prototype provides a complete accessibility evaluation, assessing the software's usability across multiple impairments, including colorblindness, blindness, deafness, and reduced mobility.
 
-![Mockup1 (2)](../DS/mockups/Mockup1.png)
+![Mockup1](../DS/mockups/Mockup1.png)
 
 The second prototype shows an interactive chat box, where developers can ask accessibility-related questions, such as whether their software includes captions for audio content.
 
-![mockup2 (2)](../DS/mockups/Mockup2.png)
+![mockup2 (2)](../../mockups/Mockup2.png)
 
 Additionally, both prototypes feature a colorblind-friendly palette generator, designed to assist developers in creating accessible color schemes. A developer can specify the number of colors, the type of colorblindness to customize the palette for, and input brand colors. The tool then generates a customized palette that ensures better accessibility for users with color vision deficiencies.
 
