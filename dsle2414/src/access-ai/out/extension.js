@@ -25,25 +25,115 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = __importStar(require("vscode"));
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 function activate(context) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "access-ai" is now active!');
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand('access-ai.helloWorld', () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World from Access AI!');
+    const disposable = vscode.commands.registerCommand('access-ai.openChatbot', () => {
+        openChatbotPanel(context);
     });
     context.subscriptions.push(disposable);
+    console.log('Your chatbot extension "access-ai" is now active!');
 }
-// This method is called when your extension is deactivated
 function deactivate() { }
+function openChatbotPanel(context) {
+    const panel = vscode.window.createWebviewPanel('chatbot', 'AI Chatbot', vscode.ViewColumn.One, {
+        enableScripts: true
+    });
+    panel.webview.html = getWebviewContent();
+    // Listen for messages from the webview
+    panel.webview.onDidReceiveMessage(message => {
+        switch (message.type) {
+            case 'userMessage':
+                // Here you could connect to an AI model API or generate a response
+                const botResponse = `${message.text}`;
+                panel.webview.postMessage({ type: 'botMessage', text: botResponse });
+                break;
+        }
+    }, undefined, context.subscriptions);
+}
+function getWebviewContent() {
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AI Chatbot</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+                .chat-container { display: flex; flex-direction: column; height: 100vh; }
+                .messages { flex: 1; padding: 10px; overflow-y: auto; border-bottom: 1px solid #ccc; }
+                .input-container { display: flex; padding: 10px; }
+                input { flex: 1; padding: 8px; font-size: 14px; }
+                button { padding: 8px; font-size: 14px; margin-left: 5px; }
+                .message { margin: 10px 0; }
+                .message-label { font-weight: bold; }
+                .user-message { text-align: left; }
+                .bot-message { text-align: right; color: #555; }
+            </style>
+        </head>
+        <body>
+            <div class="chat-container">
+                <div class="messages" id="messages"></div>
+                <div class="input-container">
+                    <input id="userInput" type="text" placeholder="Type a message..." onkeydown="handleKeyPress(event)" />
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            <script>
+                const vscode = acquireVsCodeApi();
+
+                function sendMessage() {
+                    const userInput = document.getElementById('userInput');
+                    const message = userInput.value.trim();
+                    if (!message) return;
+
+                    // Display user's message with label "You:"
+                    addMessage(message, 'user-message', 'You');
+                    userInput.value = '';
+
+                    // Send message to the extension
+                    vscode.postMessage({ type: 'userMessage', text: message });
+                }
+
+                function handleKeyPress(event) {
+                    if (event.key === 'Enter') {
+                        sendMessage();
+                    }
+                }
+
+                function addMessage(text, className, label) {
+                    const messages = document.getElementById('messages');
+                    
+                    // Create message container
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message ' + className;
+                    
+                    // Add label (e.g., "You:" or "Bot:")
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'message-label';
+                    labelDiv.textContent = label + ':';
+                    messageDiv.appendChild(labelDiv);
+                    
+                    // Add the message text
+                    const textDiv = document.createElement('div');
+                    textDiv.textContent = text;
+                    messageDiv.appendChild(textDiv);
+
+                    messages.appendChild(messageDiv);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+
+                // Handle messages from the extension
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    if (message.type === 'botMessage') {
+                        // Display bot's message with label "Bot:"
+                        addMessage(message.text, 'bot-message', 'Bot');
+                    }
+                });
+            </script>
+        </body>
+        </html>
+    `;
+}
 //# sourceMappingURL=extension.js.map
