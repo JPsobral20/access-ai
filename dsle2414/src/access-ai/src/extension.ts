@@ -24,22 +24,37 @@ function openChatbotPanel(context: vscode.ExtensionContext) {
     panel.webview.html = getWebviewContent();
 
     // Listen for messages from the webview
-    panel.webview.onDidReceiveMessage(
-        message => {
-            switch (message.type) {
-                case 'userMessage':
-                    // Here you could connect to an AI model API or generate a response
-                    const botResponse = `${message.text}`;
-                    panel.webview.postMessage({ type: 'botMessage', text: botResponse });
-                    break;
-            }
-        },
-        undefined,
-        context.subscriptions
-    );
+    panel.webview.onDidReceiveMessage(async message => {
+        switch (message.type) {
+            case 'userMessage':
+                const botResponse = await getGeminiResponse(message.text);
+                panel.webview.postMessage({ type: 'botMessage', text: botResponse });
+                break;
+        }
+    }, undefined, context.subscriptions);
 }
 
+async function getGeminiResponse(userMessage: string): Promise<string> {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ textInput: userMessage })
+        });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json() as { response?: string };
+        return data.response || "Error: No response from Gemini";
+    } catch (error) {
+        console.error('Error fetching Gemini response:', error);
+        return "Error connecting to Gemini API or invalid response format.";
+    }
+}
 
 function getWebviewContent() {
     return `
@@ -78,11 +93,9 @@ function getWebviewContent() {
                     const message = userInput.value.trim();
                     if (!message) return;
 
-                    // Display user's message with label "You:"
                     addMessage(message, 'user-message', 'You');
                     userInput.value = '';
 
-                    // Send message to the extension
                     vscode.postMessage({ type: 'userMessage', text: message });
                 }
 
@@ -94,18 +107,14 @@ function getWebviewContent() {
 
                 function addMessage(text, className, label) {
                     const messages = document.getElementById('messages');
-                    
-                    // Create message container
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'message ' + className;
                     
-                    // Add label (e.g., "You:" or "Bot:")
                     const labelDiv = document.createElement('div');
                     labelDiv.className = 'message-label';
                     labelDiv.textContent = label + ':';
                     messageDiv.appendChild(labelDiv);
                     
-                    // Add the message text
                     const textDiv = document.createElement('div');
                     textDiv.textContent = text;
                     messageDiv.appendChild(textDiv);
@@ -114,11 +123,9 @@ function getWebviewContent() {
                     messages.scrollTop = messages.scrollHeight;
                 }
 
-                // Handle messages from the extension
                 window.addEventListener('message', event => {
                     const message = event.data;
                     if (message.type === 'botMessage') {
-                        // Display bot's message with label "Bot:"
                         addMessage(message.text, 'bot-message', 'Bot');
                     }
                 });
@@ -127,5 +134,3 @@ function getWebviewContent() {
         </html>
     `;
 }
-
-
