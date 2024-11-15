@@ -65,16 +65,127 @@ function getWebviewContent() {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>AI Chatbot</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-                .chat-container { display: flex; flex-direction: column; height: 100vh; }
-                .messages { flex: 1; padding: 10px; overflow-y: auto; border-bottom: 1px solid #ccc; }
-                .input-container { display: flex; padding: 10px; }
-                input { flex: 1; padding: 8px; font-size: 14px; }
-                button { padding: 8px; font-size: 14px; margin-left: 5px; }
-                .message { margin: 10px 0; }
-                .message-label { font-weight: bold; }
-                .user-message { text-align: left; }
-                .bot-message { text-align: right; color: #555; }
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #1e1e1e;
+                    color: #fff;
+                    height: 100vh;
+                }
+                .chat-container {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    width: 100%;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                .messages {
+                    flex: 1;
+                    padding: 20px;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                .input-container {
+                    display: flex;
+                    padding: 15px;
+                    background-color: #2d2d2d;
+                    border-top: 1px solid #333;
+                }
+                input {
+                    flex: 1;
+                    padding: 10px;
+                    border-radius: 20px;
+                    border: 1px solid #333;
+                    background-color: #3c3c3c;
+                    color: #fff;
+                    font-size: 14px;
+                    outline: none;
+                    transition: border 0.3s;
+                }
+                input:focus {
+                    border-color: #0078d4;
+                }
+                button {
+                    padding: 10px 15px;
+                    margin-left: 10px;
+                    background-color: #0078d4;
+                    color: white;
+                    border: none;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+                button:hover {
+                    background-color: #005a8c;
+                }
+                .message {
+                    display: flex;
+                    flex-direction: column;
+                    max-width: 80%;
+                    padding: 10px 15px;
+                    border-radius: 20px;
+                    background-color: #3c3c3c;
+                    margin: 5px 0;
+                    word-wrap: break-word;
+                }
+                .user-message {
+                    background-color: #4e94d1;
+                    align-self: flex-start;
+                }
+                .bot-message {
+                    background-color: #575757;
+                    align-self: flex-end;
+                }
+                .message-label {
+                    font-weight: bold;
+                    font-size: 14px;
+                    margin-bottom: 5px;
+                }
+                .message-time {
+                    font-size: 10px;
+                    color: #888;
+                    text-align: right;
+                    margin-top: 5px;
+                }
+                .typing-indicator {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    font-size: 14px;
+                    color: #aaa;
+                }
+                .dot {
+                    height: 8px;
+                    width: 8px;
+                    margin: 0 3px;
+                    background-color: #aaa;
+                    border-radius: 50%;
+                    animation: blink 1.5s infinite;
+                }
+                .dot:nth-child(1) {
+                    animation-delay: 0s;
+                }
+                .dot:nth-child(2) {
+                    animation-delay: 0.3s;
+                }
+                .dot:nth-child(3) {
+                    animation-delay: 0.6s;
+                }
+                @keyframes blink {
+                    0% { opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { opacity: 0; }
+                }
+                /* Smooth scroll behavior */
+                .messages {
+                    scroll-behavior: smooth;
+                }
             </style>
         </head>
         <body>
@@ -85,6 +196,7 @@ function getWebviewContent() {
                     <button onclick="sendMessage()">Send</button>
                 </div>
             </div>
+            <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!-- Include marked.js -->
             <script>
                 const vscode = acquireVsCodeApi();
 
@@ -94,7 +206,9 @@ function getWebviewContent() {
                     if (!message) return;
 
                     addMessage(message, 'user-message', 'You');
-                    userInput.value = '';
+                    userInput.value = ''; // Clear the input field
+                    userInput.focus(); // Focus input back
+                    showTypingIndicator();
 
                     vscode.postMessage({ type: 'userMessage', text: message });
                 }
@@ -109,26 +223,68 @@ function getWebviewContent() {
                     const messages = document.getElementById('messages');
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'message ' + className;
-                    
+
                     const labelDiv = document.createElement('div');
                     labelDiv.className = 'message-label';
                     labelDiv.textContent = label + ':';
                     messageDiv.appendChild(labelDiv);
-                    
+
                     const textDiv = document.createElement('div');
-                    textDiv.textContent = text;
+                    textDiv.innerHTML = text;  // Use innerHTML for safe rendering
                     messageDiv.appendChild(textDiv);
 
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'message-time';
+                    timeDiv.textContent = new Date().toLocaleTimeString().slice(0, 5);
+                    messageDiv.appendChild(timeDiv);
+
                     messages.appendChild(messageDiv);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+
+                function showTypingIndicator() {
+                    const messages = document.getElementById('messages');
+                    const typingDiv = document.createElement('div');
+                    typingDiv.className = 'typing-indicator';
+                    typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+                    messages.appendChild(typingDiv);
                     messages.scrollTop = messages.scrollHeight;
                 }
 
                 window.addEventListener('message', event => {
                     const message = event.data;
                     if (message.type === 'botMessage') {
-                        addMessage(message.text, 'bot-message', 'Bot');
+                        const typingDiv = document.querySelector('.typing-indicator');
+                        if (typingDiv) typingDiv.remove();
+                        addBotMessage(message.text);  // Add the bot message to the messages container
                     }
                 });
+
+                // Add the bot message and render Markdown in HTML
+                function addBotMessage(markdownText) {
+                    const messages = document.getElementById('messages');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message bot-message';
+
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'message-label';
+                    labelDiv.textContent = 'Bot:';
+                    messageDiv.appendChild(labelDiv);
+
+                    // Convert Markdown to HTML
+                    const htmlContent = marked.parse(markdownText);
+                    const textDiv = document.createElement('div');
+                    textDiv.innerHTML = htmlContent; // Inject parsed HTML content into the message div
+                    messageDiv.appendChild(textDiv);
+
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'message-time';
+                    timeDiv.textContent = new Date().toLocaleTimeString().slice(0, 5);
+                    messageDiv.appendChild(timeDiv);
+
+                    messages.appendChild(messageDiv);
+                    messages.scrollTop = messages.scrollHeight;
+                }
             </script>
         </body>
         </html>
