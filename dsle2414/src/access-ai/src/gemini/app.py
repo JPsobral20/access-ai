@@ -2,7 +2,6 @@
 # instalar o flask pip install flask
 # instalar o flask_cors pip install flask_cors
 # instalar o google generative ai pip install google-generativeai
-# instalar o markdown pip install markdown
 
 
 # app.py
@@ -10,8 +9,6 @@ from flask import Flask, request, jsonify
 import google.generativeai as genai
 import os
 from flask_cors import CORS
-import markdown
-from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 CORS(app)
@@ -48,51 +45,7 @@ def submit():
     except Exception as e:
         return jsonify({'error': f"Error fetching Gemini response: {str(e)}"}), 500
 
-    # Convert Markdown-like formatting to HTML
-    html_response = markdown.markdown(gemini_response)
-    
-    # Convert HTML to Markdown
-    markdown_response = html_to_markdown(html_response)
-
-    return jsonify({'response': markdown_response})
-
-
-
-def html_to_markdown(html_text):
-    # Parse the HTML content
-    soup = BeautifulSoup(html_text, "html.parser")
-    
-    # Initialize the result Markdown text
-    markdown_text = ""
-
-    # Iterate over all elements in the parsed HTML
-    for element in soup.contents:
-        if element.name == "p":
-            # For <p> tags, add two newlines to separate paragraphs in Markdown
-            markdown_text += f"{element.get_text()}\n\n"  
-        elif element.name == "strong":
-            # For <strong> tags, convert to bold in Markdown
-            markdown_text += f"**{element.get_text()}**"
-        elif element.name == "ul":
-            # For <ul> (unordered list), convert list items to Markdown
-            for li in element.find_all("li"):
-                markdown_text += f"- {li.get_text()}\n"
-            markdown_text += "\n"  # Add a newline after lists to separate them as a paragraph
-        elif element.name and element.name.startswith("h") and element.name[1:].isdigit():
-            # Convert any <h1>, <h2>, <h3>, etc. to Markdown headers
-            header_level = int(element.name[1:])
-            markdown_text += f"{'#' * header_level} {element.get_text()}\n"
-        elif element.name == "br":
-            # Handle line breaks in HTML and convert them to Markdown line breaks
-            markdown_text += "  \n"  # Markdown line break
-        else:
-            # For other tags, just get the text
-            markdown_text += element.get_text()
-
-    # Strip extra whitespace at the end
-    return markdown_text.strip()
-
-
+    return jsonify({'response': gemini_response})
 
 
 if __name__ == '__main__':
