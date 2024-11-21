@@ -53,12 +53,25 @@ function showTypingIndicator() {
 
 window.addEventListener('message', event => {
     const message = event.data;
+
     if (message.type === 'botMessage') {
         const typingDiv = document.querySelector('.typing-indicator');
-        if (typingDiv) {typingDiv.remove();}
-        addBotMessage(message.text);  // Add the bot message to the messages container
+        if (typingDiv) { typingDiv.remove(); }
+        addBotMessage(message.text); // Add the bot message to the messages container
+    } else if (message.type === 'sessionHistory') {
+        // Restore the entire session history
+        const messages = document.getElementById('messages');
+        messages.innerHTML = ''; // Clear existing messages
+        message.sessionHistory.forEach(msg => {
+            if (msg.sender === 'user') {
+                addMessage(msg.text, 'user-message', 'You');
+            } else if (msg.sender === 'bot') {
+                addBotMessage(msg.text);
+            }
+        });
     }
 });
+
 
 // Add the bot message and render Markdown in HTML
 function addBotMessage(markdownText) {

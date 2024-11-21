@@ -15,7 +15,7 @@ export function deactivate() {}
 function openChatbotPanel(context: vscode.ExtensionContext) {
     const panel = vscode.window.createWebviewPanel(
         'chatbot',
-        'AI Chatbot',
+        'Access-ai',
         vscode.ViewColumn.One,
         {
             enableScripts: true

@@ -36,7 +36,7 @@ function activate(context) {
 }
 function deactivate() { }
 function openChatbotPanel(context) {
-    const panel = vscode.window.createWebviewPanel('chatbot', 'AI Chatbot', vscode.ViewColumn.One, {
+    const panel = vscode.window.createWebviewPanel('chatbot', 'Access-ai', vscode.ViewColumn.One, {
         enableScripts: true
     });
     panel.webview.html = (0, webviewContent_1.getWebviewContent)(context, panel.webview);
