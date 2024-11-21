@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "access-ai.openChatbot",
-        "title": "Open AI Chatbot"
+        "title": "Access-ai"
       }
     ]
   },
