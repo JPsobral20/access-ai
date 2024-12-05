@@ -1,18 +1,42 @@
-<title>Accessible Photo Gallery</title> <style> body { font-family: Arial, sans-serif; } .gallery img { width: 200px; height: 150px; margin: 10px; } </style>
-<header>
-    <h1>Welcome to Our Accessible Photo Gallery</h1>
-    <p>Explore a collection of beautiful photos from around the world!</p>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poorly Spaced Buttons Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
 
-<section class="gallery">
-    <h2>Gallery</h2>
-    <!-- Enhanced accessibility with descriptive alt attributes -->
-    <img src="images/mountain.jpg" alt="A tall, snowy mountain peak set against a clear blue sky">
-    <img src="images/beach.jpg" alt="A sunny beach scene with palm trees and turquoise water">
-    <img src="images/forest.jpg" alt="A green forest with dense trees and sunlight filtering through the leaves">
-    <img src="images/desert.jpg" alt="A wide desert landscape with rolling sand dunes under a cloudless sky">
-</section>
+    .container {
+      display: flex;
+      gap: 5px; /* Very small gap between buttons */
+    }
 
-<footer>
-    <p>&copy; 2023 Accessible Photo Gallery. All rights reserved.</p>
-</footer>
+    .button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Poor Button Spacing Example</h1>
+  <p>These buttons are too close to each other, making them difficult to click for users with motor impairments.</p>
+  
+  <div class="container">
+    <button class="button">Button 1</button>
+    <button class="button">Button 2</button>
+    <button class="button">Button 3</button>
+    <button class="button">Button 4</button>
+  </div>
+</body>
+</html>
