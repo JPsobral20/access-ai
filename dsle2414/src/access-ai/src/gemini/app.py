@@ -1,4 +1,3 @@
-# AIzaSyBvDsp1QE9LGstzOA0yeVgvVqDriULfMr8
 # instalar o flask pip install flask
 # instalar o flask_cors pip install flask_cors
 # instalar o google generative ai pip install google-generativeai
@@ -14,7 +13,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Configure Google Gemini API
-genai.configure(api_key="AIzaSyBvDsp1QE9LGstzOA0yeVgvVqDriULfMr8")
+genai.configure(api_key="Your_Key")
 
 # Define the path to the file in the same folder
 FILE_PATH = os.path.join(os.path.dirname(__file__), "your_file.txt")  # Replace with your actual file name
