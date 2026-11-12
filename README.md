@@ -195,4 +195,4 @@ Potential directions for further development include:
 
 ---
 
-**Access AI — Making software development more inclusive, one interaction at a time.**
+**Access AI - Making software development more inclusive, one interaction at a time.**
